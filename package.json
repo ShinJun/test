@@ -1,0 +1,31 @@
+{
+  "name": "catalog",
+  "version": "0.0.1",
+  "private": true,
+  "description": "New Swagger API Project",
+  "keywords": [],
+  "author": "",
+  "license": "",
+  "main": "app.js",
+  "dependencies": {
+    "express": "^4.12.3",
+    "mongoose": "^4.8.4",
+    "mqtt": "^2.4.0",
+    "nats": "^0.7.6",
+    "swagger-express-mw": "^0.1.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.17.1",
+    "eslint-config-rallycoding": "^3.2.0",
+    "eslint-config-standard": "^7.0.0",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-react": "^6.10.3",
+    "eslint-plugin-standard": "^2.1.1",
+    "should": "^7.1.0",
+    "supertest": "^1.0.0"
+  },
+  "scripts": {
+    "start": "node app.js",
+    "test": "swagger project test"
+  }
+}

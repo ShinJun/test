@@ -1,0 +1,911 @@
+swagger: "2.0"
+info:
+  version: "1.0"
+  title: API Resource for Catalog Service
+# during dev, should point to your local machine
+host: localhost:3000
+
+# basePath prefixes all resource paths
+basePath: /api/v1.0
+#
+
+schemes:
+  # tip: remove http to make production-grade
+  - http
+  - https
+# format of bodies a client can send (Content-Type)
+consumes:
+  - application/json
+# format of the responses to the client (Accepts)
+produces:
+  - application/json
+paths:
+  /categories:
+    x-swagger-router-controller: category
+    post:
+      tags: [category]
+      summary: Add a new root category.
+      description: Add a new root category.
+      operationId: addCategory
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: Category
+          in: body
+          description: The content of the new category.
+          required: true
+          schema:
+            $ref: "#/definitions/Category"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CategorySuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categories/{parentId}/subCategories:
+    x-swagger-router-controller: category
+    post:
+      tags: [category]
+      summary: Create a sub category.
+      description: Create a sub category.
+      operationId: addSubCategory
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: parentId
+          in: path
+          description: The parentId which will be a parent category of the new sub category.
+          required: true
+          type: string
+        - name: Category
+          in: body
+          description: The content of the new category.
+          required: true
+          schema:
+            $ref: "#/definitions/Category"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CategorySuccessResponse"
+
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categories/{categoryId}/move:
+    x-swagger-router-controller: category
+    post:
+      tags: [category]
+      summary: Move a category underneath the other one.
+      description: Move a category underneath the other one.
+      operationId: moveCategory
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: categoryId
+          in: path
+          description: The categoryId which will be move to to a parent category. Make it as a root one by giving parentId with ''.
+          required: true
+          type: string
+        - name: MoveToCategory
+          in: body
+          description: The parentId that this categoryId will be underneath. Giving empty string will make this one become a root categoty.
+          schema:
+            $ref: "#/definitions/MoveToCategory"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CategorySuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categories/{categoryId}:
+    x-swagger-router-controller: category
+    delete:
+      tags: [category]
+      summary: Delete a category, but not delete its items.
+      description: Delete a category, but not delete its items.
+      operationId: deleteCategory
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: categoryId
+          in: path
+          description: The categoryId which will be deleted.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CategorySuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags: [category]
+      summary: Update info of a category.
+      description: Update info of a category. This API endpoint will not update the parentId of the category. User /categoty/{categoryId}/move instead.
+      operationId: updateCategory
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: categoryId
+          in: path
+          description: The categoryId which will be deleted.
+          required: true
+          type: string
+        - name: Category
+          in: body
+          description: The content of a new category.
+          required: true
+          schema:
+            $ref: "#/definitions/UpdateCategory"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CategorySuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categories/{categoryId}/items:
+    x-swagger-router-controller: item
+    post:
+      tags: [item]
+      summary: Add an item.
+      description: Add an item for the categoryId.
+      operationId: addItem
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: categoryId
+          in: path
+          description: The categoryId which contains the new item.
+          required: true
+          type: string
+        - name: Item
+          in: body
+          description: The content of the new item.
+          required: true
+          schema:
+            $ref: "#/definitions/Item"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /items/{itemId}:
+    x-swagger-router-controller: item
+    delete:
+      tags: [item]
+      summary: Delete an item.
+      description: Delete an item of the categoryId.
+      operationId: deleteItem
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The itemId which will be deleted.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags: [item]
+      summary: Update an item.
+      description: Update an item of the categoryId.
+      operationId: updateItem
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The itemId which will be updated.
+          required: true
+          type: string
+        - name: Item
+          in: body
+          description: The content of the updated item.
+          required: true
+          schema:
+            $ref: "#/definitions/Item"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /items/{itemId}/isDeleted:
+    x-swagger-router-controller: item
+    put:
+      tags: [item]
+      summary: Update isDeleted of item.
+      description: Update isDeleted of item.
+      operationId: isDeletedItem
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The itemId which will be updated.
+          required: true
+          type: string
+        - name: Item
+          in: body
+          description: The content of the updated item.
+          required: true
+          schema:
+            $ref: "#/definitions/isDeletedItem"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /items/{itemId}/validate:
+    x-swagger-router-controller: item
+    post:
+      tags: [item]
+      summary: Validate item.
+      description: Validate item.
+      operationId: validateItem
+      parameters:
+        - name: requestToken
+          in: header
+          description: requestToken will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The itemId which will be validated.
+          required: true
+          type: string
+        - name: ValidateItem
+          in: body
+          description: The content of the item beeing validated.
+          required: true
+          schema:
+            $ref: "#/definitions/ValidateItem"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemValidationSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /items/{itemId}/combos:
+    x-swagger-router-controller: combo
+    post:
+      tags: [combo]
+      summary: Add a combo item.
+      description: Add a combo of the itemId.
+      operationId: addCombo
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: itemId
+          in: path
+          description: The itemId which contains the new combo.
+          required: true
+          type: string
+        - name: Combo
+          in: body
+          description: The content of the new combo.
+          required: true
+          schema:
+            $ref: "#/definitions/Combo"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /combos/{comboId}:
+    x-swagger-router-controller: combo
+    delete:
+      tags: [combo]
+      summary: Delete a combo.
+      description: Update the combo.
+      operationId: deleteCombo
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: comboId
+          in: path
+          description: The comboId which will be deleted.
+          required: true
+          type: string
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+    put:
+      tags: [combo]
+      summary: Update the combo item.
+      description: Up the combo of the categoryId.
+      operationId: updateCombo
+      parameters:
+        - name: restaurantId
+          in: header
+          description: restaurantId will be redirected from api-gateway.
+          required: true
+          type: string
+        - name: comboId
+          in: path
+          description: The categoryId which contains the new combo.
+          required: true
+          type: string
+        - name: Combo
+          in: body
+          description: The content of the new combo.
+          required: true
+          schema:
+            $ref: "#/definitions/Combo"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/ItemSuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+  /categoriess:
+    x-swagger-router-controller: category-new
+    post:
+      tags: [category]
+      summary: Add a new root category.
+      description: Add a new root category.
+      operationId: addCategory1
+      parameters:
+        - name: Category
+          in: body
+          description: The content of the new category.
+          required: true
+          schema:
+            $ref: "#/definitions/Category-new"
+      responses:
+        "200":
+          description: Success
+          schema:
+            # a pointer to a definition
+            $ref: "#/definitions/CategorySuccessResponse"
+        "400":
+          description: Bad request
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: "#/definitions/BadRequestResponse"
+        # responses may fall through to errors
+        default:
+          description: Error
+          schema:
+            $ref: "#/definitions/ErrorResponse"
+# complex objects have schema definitions
+definitions:
+  Combo:
+    properties:
+      name:
+        description: Name of the item.
+        type: string
+      description:
+        type: string
+      price:
+        $ref: "#/definitions/Price"
+      translation:
+        description: Array of translation for the item.
+        type: array
+        items:
+            $ref: '#/definitions/Translation'
+      assets:
+        description: Including a thumbnail and an images list.
+        properties:
+          thumbnail:
+            $ref: "#/definitions/Asset"
+          images:
+            type: array
+            items:
+              $ref: "#/definitions/Asset"
+      itemsGroup:
+        description: Items group in a combo from which customer can select one or many.
+        type: array
+        items:
+          $ref: "#/definitions/ItemsGroup"
+  ItemsGroup:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      displayType:
+        description: The way how to display items in the group such as CHECKBOX or DROPDOWN.
+        type: string
+      translation:
+        description: Array of translation for an ad-on.
+        type: array
+        items:
+            $ref: '#/definitions/Translation'
+      items:
+        description: ItemId(s) in the group.
+        type: array
+        items:
+          type: string
+  Item:
+    properties:
+      name:
+        description: Name of the item.
+        type: string
+      description:
+        type: string
+      price:
+        $ref: "#/definitions/Price"
+      language:
+        description: Inputing language. Default is 'english'.
+        type: string
+      translation:
+        description: Array of translation for the item.
+        type: array
+        items:
+            $ref: '#/definitions/Translation'
+      assets:
+        description: Including a thumbnail and an images list.
+        properties:
+          thumbnail:
+            $ref: "#/definitions/Asset"
+          images:
+            type: array
+            items:
+              $ref: "#/definitions/Asset"
+      addOns:
+        description: Add-ons of an item such as cheese cover of a pizza.
+        type: array
+        items:
+          $ref: "#/definitions/AddOn"
+  isDeletedItem:
+    properties:
+      isDeleted:
+        description: set value for isDeleted field.
+        type: boolean
+  ValidateItem:
+    required:
+      - orderId
+      - restaurantId
+      - createdDate
+      - payload
+    properties:
+      orderId:
+        type: string
+      restaurantId:
+        type: string
+      customerId:
+        type: string
+      event:
+        type: string
+      userId:
+        type: string
+      createdDate:
+        type: string
+        format: date-time
+      payload:
+        $ref: "#/definitions/Payload"
+  Payload:
+    properties:
+      itemId:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: number
+  Price:
+    properties:
+      price:
+        type: number
+      sale:
+        properties:
+          salePrice:
+            type: number
+          saleEndDate:
+            type: string
+            format: date-time
+  AddOn:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      displayType:
+        description: The way how to display members in the add-ones group such as CHECKBOX or DROPDOWN.
+        type: string
+      translation:
+        description: Array of translation for an ad-on.
+        type: array
+        items:
+            $ref: '#/definitions/Translation'
+      options:
+        description: Add-ons of an item such as cheese cover of a pizza.
+        type: array
+        items:
+          $ref: "#/definitions/Option"
+  Option:
+    properties:
+      name:
+        type: string
+      price:
+        $ref: "#/definitions/Price"
+      selected:
+        type: boolean
+      translation:
+        description: Array of translation for an option.
+        type: array
+        items:
+          $ref: '#/definitions/Translation'
+  MoveToCategory:
+    required:
+      - parentId
+    properties:
+      parentId:
+        description: the parentId which the category will be belong.
+        type: string
+  Category:
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      serviceFee:
+        type: number
+      isPlusPlusSign:
+        type: boolean
+      taxName:
+        type: string
+      taxFee:
+        type: number
+      language:
+        description: Inputing language. Default is English.
+        type: string
+      translation:
+        description: Array of translation for the category.
+        type: array
+        items:
+            $ref: '#/definitions/Translation'
+      assets:
+        description: Including a thumbnail and an images list.
+        properties:
+          thumbnail:
+            $ref: "#/definitions/Asset"
+          images:
+            type: array
+            items:
+              $ref: "#/definitions/Asset"
+  UpdateCategory:
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      language:
+        description: Inputing language. Default is English.
+        type: string
+      translation:
+        description: Array of translation for the category.
+        type: array
+        items:
+            $ref: '#/definitions/Translation'
+      assets:
+        description: Including a thumbnail and an images list.
+        properties:
+          thumbnail:
+            $ref: "#/definitions/Asset"
+          images:
+            type: array
+            items:
+              $ref: "#/definitions/Asset"
+  Asset:
+    properties:
+      source:
+        type: string
+      awsKey:
+        type: string
+  Translation:
+    properties:
+      fieldName:
+        description: The field name will be translated. E.g. the "description"
+        type: string
+      content:
+        description: The content of the fieldName. E.g. "Sách tham khảo" in Vietnamese.
+        type: string
+      languageCode:
+        description: The language code being used for filtering on response. E.g. 'vi'.
+        type: string
+      language:
+        description: The language supported for full-text search. E.g. 'finnish'. Default is 'none'.
+        type: string
+    required:
+      - fieldName
+      - content
+      - languageCode
+  Category-new:
+    required:
+      - name
+      - description
+    properties:
+      name:
+        type: string
+      description:
+        type: string
+      logoImage:
+        description: Including a thumbnail and an images list.
+        properties:
+          thumbnail:
+            $ref: "#/definitions/Logo-image"
+
+  Logo-image:
+    properties:
+      name:
+        type: string
+      source: 
+        type: string
+  ItemSuccessResponse:
+    required:
+      - itemId
+      - message
+    properties:
+      itemId:
+        type: string
+      message:
+        type: string
+  ItemValidationSuccessResponse:
+    required:
+      - code
+      - message
+      - itemId
+      - price
+      - quantity
+      - itemInfo
+    properties:
+      code:
+        type: number
+      message:
+        type: string
+      itemId:
+        type: string
+      price:
+        type: number
+      quantity:
+        type: number
+      itemInfo:
+        type: object
+  CategorySuccessResponse:
+    required:
+      - categoryId
+      - message
+    properties:
+      categoryId:
+        type: string
+      message:
+        type: string
+  BadRequestResponse:
+    required:
+      - code
+      - message
+    properties:
+      code:
+        type: number
+      message:
+        type: string
+  ErrorResponse:
+    required:
+      - message
+    properties:
+      message:
+        type: string

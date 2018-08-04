@@ -1,0 +1,6 @@
+# ignore all files in the node_modules/ directory
+dump/
+node_modules
+.*
+!/.gitignore
+
